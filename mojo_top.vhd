@@ -30,10 +30,12 @@ end mojo_top;
 
 architecture RTL of mojo_top is
 
-signal rst	: std_logic;		-- reset signal (rst_n inverted for postive logic)
+signal rst	       : std_logic;     -- reset signal (rst_n inverted for postive logic)
 --Mux selector pins (bit 0,1), Decoder selector pins (bit 2,3)
-signal sel  : std_logic_vector(3 downto 0);
-
+signal sel             : std_logic_vector(3 downto 0);
+signal out_mux_latch   : std_logic_vector(15 downto 0);
+signal out_latch_count : std_logic_vector(1 downto 0); -- this counts on every clock cycle
+--RPI code needs to be modified to set write to the next line that is to be displayed
 
 
 begin
@@ -47,10 +49,10 @@ begin
 
 -- Bus multiplexer (anode side)
 --data_out_mux <= data_in & "000000000000" when sel(1 downto 0) = "00" else
---				"0000" & data_in & "00000000" when sel(1 downto 0) = "01" else
---				"00000000" & data_in & "0000" when sel(1 downto 0) = "10" else
---				"000000000000" & data_in when sel(1 downto 0) = "11" else
---				(others => '0');
+--				  "0000" & data_in & "00000000" when sel(1 downto 0) = "01" else
+--                "00000000" & data_in & "0000" when sel(1 downto 0) = "10" else
+--				  "000000000000" & data_in when sel(1 downto 0) = "11" else
+--               (others => '0');
 
 --Counter
 process (counter_clock, rst_n) --Counter clock and reset button sensitivity list
@@ -60,19 +62,24 @@ begin
 if(rst_n = '0') then 
 	sel <= "0000";
 	data_out_mux <= (others => '0');
+	out_mux_count <= 0;
 --counter inc
 elsif(counter_clock'event and counter_clock = '1') then
 	sel <= sel + 1;
+	out_latch_count <= out_latch_count+1;
 	if(sel(1 downto 0) = "00") then
-	    data_out_mux(3 downto 0) <= data_in;
+	    out_mux_latch(3 downto 0) <= data_in;
 	elsif(sel(1 downto 0) = "01") then
-	    data_out_mux(7 downto 4) <= data_in;
+	    out_mux_latch(7 downto 4) <= data_in;
 	elsif(sel(1 downto 0) = "10") then
-	    data_out_mux(11 downto 8) <= data_in;
+	    out_mux_latch(11 downto 8) <= data_in;
 	elsif(sel(1 downto 0) = "11") then
-	    data_out_mux(15 downto 12 <= data_in;
+	    out_mux_latch(15 downto 12 <= data_in;
 	else
 	    data_out_mux <= (others => '0');
+	end if;
+	if(out_latch_count = "11") then
+	    data_out_mux <= out_mux_latch;
 	end if;
 end if;
 end process;
@@ -81,8 +88,8 @@ end process;
 --Decoder
 --sel(3 downto 2)
 data_out_decoder <= "0001" when sel(3 downto 2) = "00" else
-						  "0010" when sel(3 downto 2) = "01" else
-						  "0100" when sel(3 downto 2) = "10" else
-						  "1000" when sel(3 downto 2) = "11";
+                    "0010" when sel(3 downto 2) = "01" else
+					"0100" when sel(3 downto 2) = "10" else
+					"1000" when sel(3 downto 2) = "11";
 
 end RTL;
