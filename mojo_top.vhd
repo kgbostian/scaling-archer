@@ -87,9 +87,10 @@ end process;
 
 --Decoder
 --sel(3 downto 2)
-data_out_decoder <= "0001" when sel(3 downto 2) = "00" else
-                    "0010" when sel(3 downto 2) = "01" else
-					"0100" when sel(3 downto 2) = "10" else
-					"1000" when sel(3 downto 2) = "11";
+data_out_decoder <= "1000" when sel(3 downto 2) = "00" else
+                    "0001" when sel(3 downto 2) = "01" else
+                    "0010" when sel(3 downto 2) = "10" else
+                    "0100" when sel(3 downto 2) = "11" else
+                    (others => '0');
 
 end RTL;
