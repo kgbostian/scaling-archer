@@ -34,7 +34,6 @@ signal rst	       : std_logic;     -- reset signal (rst_n inverted for postive l
 --Mux selector pins (bit 0,1), Decoder selector pins (bit 2,3)
 signal sel             : std_logic_vector(3 downto 0);
 signal out_mux_latch   : std_logic_vector(15 downto 0);
-signal out_latch_count : std_logic_vector(1 downto 0); -- this counts on every clock cycle
 --RPI code needs to be modified to set write to the next line that is to be displayed
 
 
@@ -75,11 +74,9 @@ elsif(counter_clock'event and counter_clock = '1') then
 	    out_mux_latch(11 downto 8) <= data_in;
 	elsif(sel(1 downto 0) = "11") then
 	    out_mux_latch(15 downto 12 <= data_in;
+	    data_out_mux <= out_mux_latch;
 	else
 	    data_out_mux <= (others => '0');
-	end if;
-	if(out_latch_count = "11") then
-	    data_out_mux <= out_mux_latch;
 	end if;
 end if;
 end process;
