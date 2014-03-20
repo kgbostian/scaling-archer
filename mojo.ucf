@@ -5,7 +5,7 @@ TIMESPEC TS_clk = PERIOD "clk" 50 MHz HIGH 50%;
 # PlanAhead Generated physical constraints 
 
 NET "clk" LOC = P56;
-NET "rst_n" LOC = P38;
+NET "rst_n" LOC = P124;
 NET "cclk" LOC = P70;
 
 #NET "led<0>" LOC = P134;
@@ -22,8 +22,8 @@ NET "counter_clock" LOC = P123;
 
 NET "data_in<0>" LOC = P131;
 NET "data_in<1>" LOC = P132;
-NET "data_in<2>" LOC = P126;
-NET "data_in<3>" LOC = P127;
+NET "data_in<2>" LOC = P133;
+NET "data_in<3>" LOC = P134;
 
 NET "data_out_mux<0>" LOC = P94;
 NET "data_out_mux<1>" LOC = P95;

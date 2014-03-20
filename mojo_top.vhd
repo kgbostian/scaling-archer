@@ -34,6 +34,7 @@ signal rst	       : std_logic;     -- reset signal (rst_n inverted for postive l
 --Mux selector pins (bit 0,1), Decoder selector pins (bit 2,3)
 signal sel             : std_logic_vector(3 downto 0);
 signal out_mux_latch   : std_logic_vector(15 downto 0);
+signal out_latch_count : std_logic_vector(2 downto 0); -- this counts on every clock cycle
 --RPI code needs to be modified to set write to the next line that is to be displayed
 
 
@@ -58,14 +59,12 @@ process (counter_clock, rst_n) --Counter clock and reset button sensitivity list
 begin
 
 --reset
-if(rst_n = '0') then 
+if(rst_n = '1') then 
 	sel <= "0000";
 	data_out_mux <= (others => '0');
-	out_mux_count <= 0;
+	out_latch_count <= "000";
 --counter inc
 elsif(counter_clock'event and counter_clock = '1') then
-	sel <= sel + 1;
-	out_latch_count <= out_latch_count+1;
 	if(sel(1 downto 0) = "00") then
 	    out_mux_latch(3 downto 0) <= data_in;
 	elsif(sel(1 downto 0) = "01") then
@@ -73,21 +72,27 @@ elsif(counter_clock'event and counter_clock = '1') then
 	elsif(sel(1 downto 0) = "10") then
 	    out_mux_latch(11 downto 8) <= data_in;
 	elsif(sel(1 downto 0) = "11") then
-	    out_mux_latch(15 downto 12 <= data_in;
-	    data_out_mux <= out_mux_latch;
+	    out_mux_latch(15 downto 12) <= data_in;
 	else
 	    data_out_mux <= (others => '0');
 	end if;
+
+	out_latch_count <= out_latch_count+1;
+	if(out_latch_count = "100") then
+	    data_out_mux <= out_mux_latch;
+		 out_latch_count <= "001";
+	end if;
+	sel <= sel + 1;
 end if;
 end process;
 
 
 --Decoder
 --sel(3 downto 2)
-data_out_decoder <= "1000" when sel(3 downto 2) = "00" else
-                    "0001" when sel(3 downto 2) = "01" else
-                    "0010" when sel(3 downto 2) = "10" else
-                    "0100" when sel(3 downto 2) = "11" else
+data_out_decoder <= "0100" when sel(3 downto 2) = "00" else
+                    "1000" when sel(3 downto 2) = "01" else
+                    "0001" when sel(3 downto 2) = "10" else
+                    "0010" when sel(3 downto 2) = "11" else
                     (others => '0');
 
 end RTL;
